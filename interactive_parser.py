@@ -23,69 +23,16 @@ class UndefinedGrammarError(Exception):
     pass
 
 
-with open("./slrTable.pickle", "rb") as f:
+with open("./slr_table3.pickle", "rb") as f:
 
     States = pickle.load(f)
-    States = States.T
 
 
 # Stating CFG rules with its ancestor and length
-CFG = dict()
-CFG[0] = ["S'", 1]
-CFG[1] = ["S'", 0]
-CFG[2] = ["s", 1]
-CFG[3] = ["s", 1]
-CFG[4] = ["s", 1]
-CFG[5] = ["s", 1]
-CFG[6] = ["stmt", 1]
-CFG[7] = ["arith", 4]
-CFG[8] = ["arith", 5]
-CFG[9] = ["stmt", 5]
+with open("./cfg.pickle", "rb") as f:
+    CFG = pickle.load(f)
 
-CFG[10] = ["stmt", 5]
-CFG[11] = ["stmt", 6]
-CFG[12] = ["stmt", 5]
-CFG[13] = ["stmt", 5]
-CFG[14] = ["stmt", 5]
-CFG[15] = ["stmt", 5]
-CFG[16] = ["stmt", 4]
-CFG[17] = ["stmt", 1]
-CFG[18] = ["pred", 4]
-CFG[19] = ["pred", 5]
-
-CFG[20] = ["stmt", 1]
-CFG[21] = ["stmt", 1]
-CFG[22] = ["if", 5]
-CFG[23] = ["if", 6]
-CFG[24] = ["cond", 8]
-CFG[25] = ["actions", 5]
-CFG[26] = ["actions", 0]
-CFG[27] = ["type", 1]
-CFG[28] = ["type", 1]
-CFG[29] = ["type", 1]
-
-CFG[30] = ["type", 1]
-CFG[31] = ["type", 1]
-CFG[32] = ["type", 1]
-CFG[33] = ["compare", 1]
-CFG[34] = ["compare", 1]
-CFG[35] = ["compare", 1]
-CFG[36] = ["compare", 1]
-CFG[37] = ["compare", 1]
-CFG[38] = ["listop", 1]
-CFG[39] = ["listop", 1]
-
-
-CFG[40] = ["listop", 1]
-CFG[41] = ["listop", 1]
-CFG[42] = ["listop", 1]
-CFG[43] = ["multis", 2]
-CFG[44] = ["multis", 0]
-CFG[45] = ["subdiv", 1]
-CFG[46] = ["subdiv", 1]
-CFG[47] = ["addmul", 1]
-CFG[48] = ["addmul", 1]
-
+# print(States)
 
 # Collecting all the CFGs into one list, so that it can be reached by its number
 
@@ -103,11 +50,13 @@ while True:
     while splitter != 0:  # repeats until there is no more input
         next_input = tokens[splitter]  # define next input
         state_num = stack[0]  # define stack number to the first value on the stack
+        print(stack[::-1], tokens[splitter:])
         try:
             decision = States[state_num][
                 next_input
             ]  # find decision from the SLR parsing table
         except:
+            # print(state_num, next_input)
             print("Token not defined")
             break
         if type(decision) == str:
@@ -130,7 +79,7 @@ while True:
                         + tokens[splitter:]
                     )  # reduce tokens according to the CFG G
                     stack.insert(
-                        0, States[stack[0]].get(CFG[replace_num][0])
+                        0, int(States[stack[0]].get(CFG[replace_num][0]))
                     )  # push GOTO into the stack
             elif decision == "acc":
                 print("accepted")

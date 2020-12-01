@@ -1,6 +1,7 @@
 import pickle
 import pip
 import pandas
+from lex import tokenize
 
 """
 You can run the program by using such format:
@@ -29,6 +30,29 @@ with open("./slr_table3.pickle", "rb") as f:
     States = pickle.load(f)
 
 
+def read_from_tokens(values: list):
+    token = values.pop(0)
+    if token == "'":
+        l = read_from_tokens(values)  # [ 1, 2, 3]
+        return "'(" + ", ".join(l) + ")"
+    if token == "(":
+        L = []
+        while values[0] != ")":
+            L.append(read_from_tokens(values))
+        values.pop(0)  # pop off ')'
+        return L
+    elif token == ")":
+        raise SyntaxError("unexpected )")
+    else:
+        try:
+            return int(token)
+        except:
+            try:
+                return float(token)
+            except:
+                return token
+
+
 def parse(in_put: list) -> bool:
     tokens = list()
     values = list()
@@ -42,6 +66,7 @@ def parse(in_put: list) -> bool:
     splitter = -token_len
 
     while splitter != 0:  # repeats until there is no more input
+        print(splitter)
         next_input = tokens[splitter]  # define next input
         state_num = stack[0]  # define stack number to the first value on the stack
         print(stack[::-1], tokens[splitter:])
@@ -49,6 +74,7 @@ def parse(in_put: list) -> bool:
             decision = States[state_num][
                 next_input
             ]  # find decision from the SLR parsing table
+
         except:
             # print(state_num, next_input)
             print("Token not defined")
@@ -77,6 +103,7 @@ def parse(in_put: list) -> bool:
                     )  # push GOTO into the stack
             elif decision == "acc":
                 print("accepted")
+                return read_from_tokens(values)
                 break
             else:
                 raise UndefinedDecisionError(
@@ -98,4 +125,6 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    parse([{"(": "("}, {"CADR": "cadddr"}, {"id": "x"}, {")": ")"}])
+    string = "(CADDR (+ X '( 5 4 )) )"
+    tokenized = tokenize(string)
+    print(parse(tokenized))

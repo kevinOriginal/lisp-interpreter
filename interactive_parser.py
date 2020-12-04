@@ -60,6 +60,7 @@ while True:
             print("Token not defined")
             break
         if type(decision) == str:
+            print("str")
             if decision[0] == "s":  # if the decision is to shift
                 shift_num = int(decision[1:])
                 stack.insert(0, shift_num)  # insert the next state into the stack

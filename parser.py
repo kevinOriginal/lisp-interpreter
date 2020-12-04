@@ -36,7 +36,7 @@ def read_from_tokens(values: list):
         l = read_from_tokens(values)  # [ 1, 2, 3] 이 리턴된다
         ob = ""
         for i in l:
-            ob += str(i) + ", "
+            ob += str(i) + " "
         ob = ob[:-2]
         return "'( " + ob + " )"
     if token == "(":

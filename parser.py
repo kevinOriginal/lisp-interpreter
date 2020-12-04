@@ -33,8 +33,12 @@ with open("./slr_table3.pickle", "rb") as f:
 def read_from_tokens(values: list):
     token = values.pop(0)
     if token == "'":
-        l = read_from_tokens(values)  # [ 1, 2, 3]
-        return "'(" + ", ".join(l) + ")"
+        l = read_from_tokens(values)  # [ 1, 2, 3] 이 리턴된다
+        ob = ""
+        for i in l:
+            ob += str(i) + ", "
+        ob = ob[:-2]
+        return "'( " + ob + " )"
     if token == "(":
         L = []
         while values[0] != ")":

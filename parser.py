@@ -25,7 +25,7 @@ with open("./cfg.pickle", "rb") as f:
 
 
 # Collecting all the CFGs into one list, so that it can be reached by its number
-with open("./slr_table4.pickle", "rb") as f:
+with open("./slr_table6.pickle", "rb") as f:
 
     States = pickle.load(f)
 
@@ -84,6 +84,7 @@ def parse(in_put: list) -> bool:
             # print(state_num, next_input)
             print("Token not defined")
             break
+        print(decision, next_input)
         if type(decision) == str:
             if decision[0] == "s":  # if the decision is to shift
                 shift_num = int(decision[1:])
@@ -103,6 +104,7 @@ def parse(in_put: list) -> bool:
                         + [CFG[replace_num][0]]
                         + tokens[splitter:]
                     )  # reduce tokens according to the CFG G
+
                     stack.insert(
                         0, int(States[stack[0]].get(CFG[replace_num][0]))
                     )  # push GOTO into the stack
@@ -130,6 +132,7 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(LIST 'X X 'Y)"
+    string = "(ASSOC 'X '((X 1) (Y 2)))"
     tokenized = tokenize(string)
+    print(tokenized)
     print(parse(tokenized))

@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pandas = "*"
 
 [dev-packages]
 
@@ -11,4 +12,4 @@ name = "pypi"
 python_version = "3.9"
 
 [scripts] 
-start = "python main.py" 
+start = "python main.py"

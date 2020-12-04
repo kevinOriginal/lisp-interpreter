@@ -25,7 +25,7 @@ with open("./cfg.pickle", "rb") as f:
 
 
 # Collecting all the CFGs into one list, so that it can be reached by its number
-with open("./slr_table3.pickle", "rb") as f:
+with open("./slr_table4.pickle", "rb") as f:
 
     States = pickle.load(f)
 
@@ -33,12 +33,12 @@ with open("./slr_table3.pickle", "rb") as f:
 def read_from_tokens(values: list):
     token = values.pop(0)
     if token == "'":
+        peek = values[0]
         l = read_from_tokens(values)  # [ 1, 2, 3] 이 리턴된다
-        ob = ""
-        for i in l:
-            ob += str(i) + ", "
-        ob = ob[:-2]
-        return "'( " + ob + " )"
+        if peek[0] == "(":
+            return l
+        else:
+            return [l]
     if token == "(":
         L = []
         while values[0] != ")":
@@ -70,7 +70,7 @@ def parse(in_put: list) -> bool:
     splitter = -token_len
 
     while splitter != 0:  # repeats until there is no more input
-        #print(splitter)
+        # print(splitter)
         next_input = tokens[splitter]  # define next input
         state_num = stack[0]  # define stack number to the first value on the stack
         stack[::-1]
@@ -130,6 +130,6 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(CADDR (+ X '( 5 4 )) )"
+    string = "(LIST 'X X 'Y)"
     tokenized = tokenize(string)
     print(parse(tokenized))

@@ -70,10 +70,11 @@ def parse(in_put: list) -> bool:
     splitter = -token_len
 
     while splitter != 0:  # repeats until there is no more input
-        print(splitter)
+        # print(splitter)
         next_input = tokens[splitter]  # define next input
         state_num = stack[0]  # define stack number to the first value on the stack
-        print(stack[::-1], tokens[splitter:])
+        stack[::-1]
+        tokens[splitter:]
         try:
             decision = States[state_num][
                 next_input

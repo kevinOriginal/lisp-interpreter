@@ -68,6 +68,9 @@ def tokens_to_ast(values: list):
 
 
 def parse(in_put: list) -> bool:
+    if in_put == []:
+        print("accepted")
+        return ""
     tokens = list()
     values = list()
     for d in in_put:
@@ -80,7 +83,6 @@ def parse(in_put: list) -> bool:
     splitter = -token_len
 
     while splitter != 0:  # repeats until there is no more input
-        # print(splitter)
         next_input = tokens[splitter]  # define next input
         state_num = stack[0]  # define stack number to the first value on the stack
         stack[::-1]
@@ -91,37 +93,29 @@ def parse(in_put: list) -> bool:
             ]  # find decision from the SLR parsing table
 
         except:
-            # print(state_num, next_input)
             print("Token not defined")
             break
-        print(decision, next_input)
         if type(decision) == str:
             if decision[0] == "s":  # if the decision is to shift
                 shift_num = int(decision[1:])
                 stack.insert(0, shift_num)  # insert the next state into the stack
                 splitter += 1  # move the splitter to the right
             elif decision[0] == "r":  # if the decision is to reduce
-                if (
-                    decision == "r0"
-                ):  # if the decision is to reduce to the dummy start symbol X'
-                    print("Accepted")  # print Acceptance message
-                    # return True  # return True
-                else:
-                    replace_num = int(decision[1:])
-                    stack = stack[CFG[replace_num][1] :]  # pop contents from the stack
-                    tokens = (
-                        tokens[: splitter - CFG[replace_num][1]]
-                        + [CFG[replace_num][0]]
-                        + tokens[splitter:]
-                    )  # reduce tokens according to the CFG G
+                replace_num = int(decision[1:])
+                stack = stack[CFG[replace_num][1] :]  # pop contents from the stack
+                tokens = (
+                    tokens[: splitter - CFG[replace_num][1]]
+                    + [CFG[replace_num][0]]
+                    + tokens[splitter:]
+                )  # reduce tokens according to the CFG G
 
-                    stack.insert(
-                        0, int(States[stack[0]].get(CFG[replace_num][0]))
-                    )  # push GOTO into the stack
+                stack.insert(
+                    0, int(States[stack[0]].get(CFG[replace_num][0]))
+                )  # push GOTO into the stack
             elif decision == "acc":
                 print("accepted")
                 return tokens_to_ast(values)
-                break
+
             else:
                 raise UndefinedDecisionError(
                     "There is an invalid value at the SLR Parsing Table : ",
@@ -142,17 +136,9 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(LIST 'X X 'Y)"
-    # tokenized = tokenize(string)
-
-    string = "(STRINGP #\\A)"
-    # tokenized = tokenize(string)
-
-    string = "(STRINGP NIL)"
-    string = "(APPEND '(#\\n #\\b))"
-    # string = "(CAR '(() x i (1)))"
-    string = "(LENGTH '( (a b c ) ))"
-    tokenized = tokenize(string)
-
-    print(tokenized)
-    print(parse(tokenized))
+    f = open("testcase.in")
+    lines = f.readlines()
+    for string in lines:
+        tokenized = tokenize(string)
+        print(string)
+        print(parse(tokenized))

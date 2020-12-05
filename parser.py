@@ -84,7 +84,7 @@ def parse(in_put: list) -> bool:
             # print(state_num, next_input)
             print("Token not defined")
             break
-        print(decision, next_input)
+        # print(decision, next_input)
         if type(decision) == str:
             if decision[0] == "s":  # if the decision is to shift
                 shift_num = int(decision[1:])

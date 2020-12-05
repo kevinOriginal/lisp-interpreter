@@ -15,6 +15,23 @@ class atom:
         )
 
 
+class string:
+    """ADT for string"""
+
+    def __init__(self, value):
+        self.value = value.strip("'")
+
+    def __repr__(self):
+        return '"' + str(self.value) + '"'
+
+    def __eq__(self, compare):
+        return (
+            True
+            if isinstance(compare, self.__class__) and compare.value == self.value
+            else False
+        )
+
+
 class nil(object):
     """ADT for nil """
 

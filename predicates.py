@@ -1,6 +1,6 @@
 import sys
 from typing import List
-from data_types import nil, atom
+from data_types import nil, atom, string
 from parser import parse
 from lex import tokenize
 from exceptions import (
@@ -125,6 +125,7 @@ def make_list(arg, env):
 @identifier("CAR")
 def car(arr, env):
     check_type_list(arr)
+    arr = list(map(lambda x: eval_primitive(x), arr))
     if not arr:
         raise BoundError("Cannot get first item of empty List")
     return arr[0]
@@ -133,6 +134,7 @@ def car(arr, env):
 @identifier("CDR")
 def cdr(arr, env):
     check_type_list(arr)
+    arr = list(map(lambda x: eval_primitive(x), arr))
     return arr[1:]
 
 
@@ -209,22 +211,38 @@ def check_number_of_args(arg_arr: list, target: int):
         )
 
 
+def eval_primitive(value):
+    if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+        print("It's a string - ", string(value))
+        return (string(value), True)
+    if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+        print("It's a atom - ", atom(value))
+        return (atom(value), True)
+    if isinstance(value, int) or isinstance(value, float):
+        print("It's a number!")
+        return (value, True)
+    print("[IDK] - ", value)
+    return (value, False)
+
+
 def eval_variable(value, env):
     print("Eval variable", value)
     if isinstance(value, list):
         return eval_brackets(value, env)
     if value in env:
         return env[value]
-    if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
-        print("It's a string!")
-        return value
-    if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
-        print("It's a symbol(atom)")
-        print("atom - ", atom(value))
-        return atom(value)
-    if isinstance(value, int) or isinstance(value, float):
-        print("It's a number!")
-        return value
+    (result, is_primitive) = eval_primitive(value)
+    return result
+    # if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+    #     print("It's a string!")
+    #     return value
+    # if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+    #     print("It's a symbol(atom)")
+    #     print("atom - ", atom(value))
+    #     return atom(value)
+    # if isinstance(value, int) or isinstance(value, float):
+    #     print("It's a number!")
+    #     return value
     # raise UndefinedError("Variable {0} is undefined".format(value))
     return value
 
@@ -258,8 +276,8 @@ def eval_brackets(arg: List, env):
         # do sth
         return
 
-    # If first keyword is not reserved, than it's a plain list
-    return arg
+    # If first keyword is not reserved, than it's a plain list so we should convert it to atoms
+    return list(map(lambda x: eval_primitive(x), arg))
 
 
 def main():

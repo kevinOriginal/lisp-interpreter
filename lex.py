@@ -6,6 +6,9 @@ def tokenize(chars: str):
         string = chars[re_string.start():re_string.end()]
         print(string)
         chars = chars[:re_string.start()] + string.replace(' ', '')+ chars[re_string.end():]
+    re_char = re.compile(r'#\\\w').search(chars)
+    if re_char:
+        char = chars[re_char.start():re_char.end()]
     # comment = {'comment': chars.split(';', 1)[1]} # 주석
     chars = chars.lower() #String 대소문자를 전부 소문자로 처리
     tokens = chars.split(';')[0].replace('#(', ' # (').replace('(', ' ( ').replace(')', ' ) ').replace("'", " ' ").split()
@@ -24,7 +27,8 @@ def tokenize(chars: str):
             elif re.compile('"[\w+\s*]+"').search(token):
                 token = {'value': string}
             elif re.compile(r'^#\\\w').search(token):
-                token = {'char': token.upper()}
+                text = char.replace('#\\','')
+                token = {'char': f'"{text}"' }
             else:
                 token = {'id': token}
         tokenized.append(token)

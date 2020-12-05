@@ -238,6 +238,16 @@ def remove(args: List, env):
     return list(filter(lambda x: x != target, arr))
 
 
+@identifier("SUBST")
+def subst(args: List, env):
+    check_number_of_args(args, 3)
+    (replace_to, replace_from, lookup) = args
+    replace_to = eval_variable(replace_to, env)
+    replace_from = eval_variable(replace_from, env)
+    arr = eval_variable(lookup, env)
+    return list(map(lambda x: x if x != replace_from else replace_to, arr))
+
+
 # Validators
 # TODO: Implement primitive checker and maybe change name
 def check_primitive(args):

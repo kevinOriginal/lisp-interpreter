@@ -55,21 +55,27 @@ def minus_p(value):
 
 # TODO: Need to know which kind of data types for equal and arithmatic comparasons
 @predicate("EQUAL")
-def equal(x, y):
+def equal(args):
+    check_number_of_args(args, 2)
+    (x, y) = args
     if type(x) is not type(y):
         return False
     return x == y
 
 
 @predicate("<")
-def less_than(x, y):
+def less_than(args):
+    check_number_of_args(args, 2)
+    (x, y) = args
     if type(x) is not type(y):
         raise TypeError("Argument Type", x, " and ", y, " do not match")
     return x < y
 
 
 @predicate(">=")
-def greater_or_equal_to(x, y):
+def greater_or_equal_to(args):
+    check_number_of_args(args, 2)
+    (x, y) = args
     if type(x) is not type(y):
         raise TypeError("Argument Type", x, " and ", y, " do not match")
     return x >= y
@@ -108,15 +114,16 @@ def set_q(args, env):
 
 # just returns the list
 @identifier("LIST")
-def make_list(arg):
+def make_list(arg, env):
+    evaled_list = list(map(lambda x: eval_variable(x, env), arg))
     if not check_primitive(arg):
         raise TypeError("Types inside a list should be XXXXXXXXXXXXXX")
-    return arg
+    return evaled_list
 
 
 # returns first argument of list
 @identifier("CAR")
-def car(arr):
+def car(arr, env):
     check_type_list(arr)
     if not arr:
         raise BoundError("Cannot get first item of empty List")
@@ -124,7 +131,7 @@ def car(arr):
 
 
 @identifier("CDR")
-def cdr(arr):
+def cdr(arr, env):
     check_type_list(arr)
     return arr[1:]
 
@@ -133,7 +140,7 @@ def cdr(arr):
 
 
 @identifier("NTH")
-def nth(args: List):
+def nth(args: List, env):
     check_number_of_args(args, 2)
     (index, arr) = args
     check_type_list(arr)
@@ -147,7 +154,7 @@ def nth(args: List):
 
 
 @identifier("CONS")
-def cons(args: List):
+def cons(args: List, env):
     check_number_of_args(args, 2)
     (arr, value) = args
     check_type_list(arr)
@@ -156,20 +163,22 @@ def cons(args: List):
 
 # TODO: single arguments should be flattend before comming in?
 @identifier("REVERSE")
-def reverse(arr: List):
+def reverse(arr: List, env):
     check_type_list(arr)
     return arr.reversed()
 
 
 @identifier("APPEND")
-def append(arr1, arr2):
+def append(args: List, env):
+    check_number_of_args(args, 2)
+    (arr1, arr2) = args
     if not isinstance(arr1, list) or not isinstance(arr2, list):
         raise TypeError("Both arguments should be Type List, instead received")
     return arr1.extend(arr2)
 
 
 @identifier("LENGTH")
-def length(arr: List):
+def length(arr: List, env):
     check_type_list(arr)
     return len(arr)
 
@@ -206,10 +215,10 @@ def eval_variable(value, env):
         return eval_brackets(value, env)
     if value in env:
         return env[value]
-    if value.startswith('"') and value.endswith('"'):
+    if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
         print("It's a string!")
         return value
-    if value.startswith("'") and value.endswith("'"):
+    if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
         print("It's a symbol(atom)")
         print("atom - ", atom(value))
         return atom(value)
@@ -220,6 +229,7 @@ def eval_variable(value, env):
     return value
 
 
+#  WARNING!! : Some variables must be lazy evaluated!
 def eval_brackets(arg: List, env):
     (first, *rest) = arg
     if first in predicates:
@@ -228,10 +238,10 @@ def eval_brackets(arg: List, env):
                 first, predicate[first].__name__
             )
         )
-        args = list(map(lambda x: eval_variable(x, env), rest))
-        if len(args) == 1:
-            args = args[0]
-        result = predicates[first](args)
+        # args = list(map(lambda x: eval_variable(x, env), rest))
+        if len(rest) == 1:
+            rest = rest[0]
+        result = predicates[first](rest)
         return result
     if first in identifiers:
         print(
@@ -239,10 +249,10 @@ def eval_brackets(arg: List, env):
                 first, identifiers[first].__name__
             )
         )
-        args = list(map(lambda x: eval_variable(x, env), rest))
-        if len(args) == 1:
-            args = args[0]
-        result = identifiers[first](args)
+        # args = list(map(lambda x: eval_variable(x, env), rest))
+        if len(rest) == 1:
+            rest = rest[0]
+        result = identifiers[first](rest, env)
         return result
     if first in operations:
         # do sth

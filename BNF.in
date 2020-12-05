@@ -1,0 +1,58 @@
+S’ -> s
+s -> id
+s -> value
+s -> list
+s -> stmt
+stmt -> arith
+arith-> ( addmul multis )
+arith -> ( subdiv s multis )
+stmt -> ( SETQ id s )
+stmt -> ( LIST multis )
+stmt -> ( CONS s s )
+stmt -> ( APPEND s s multis )
+stmt -> ( MEMBER s s )
+stmt -> ( ASSOC s hashlist )
+stmt -> ( REMOVE s s )
+stmt -> ( SUBST s s s )
+stmt -> ( NTH s s )
+stmt -> ( listop s )
+stmt -> pred
+pred -> ( type s )
+pred -> ( comp s s )
+stmt -> if
+stmt -> cond
+if -> ( IF pred stmt )
+if -> ( IF pred stmt stmt )
+cond -> ( COND actions )
+actions -> ( pred stmt ) actions 
+actions -> ''
+type -> ATOM 
+type -> NULL 
+type -> NUMBERP 
+type -> ZEROP 
+type -> MINUSP 
+type -> STRINGP
+comp -> EQUAL
+comp -> <
+comp -> <= 
+comp -> > 
+comp -> >=
+listop -> CAR
+listop -> CDR
+listop -> CADR
+listop -> REVERSE
+listop -> LENGTH
+multis -> s multis
+multis -> ''
+list -> ' ( multis ) 
+list -> ' s
+subdiv -> -
+subdiv -> /
+addmul -> +
+addmul -> *
+hashlist -> ' ( hash )
+hash -> ( s s ) hash 
+hash -> ''
+
+
+

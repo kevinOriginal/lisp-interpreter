@@ -6,6 +6,7 @@ s -> symbol
 s -> stmt
 s -> array
 s -> char
+s -> NIL
 
 stmt -> arith
 arith-> ( addmul multis )

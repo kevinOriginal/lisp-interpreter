@@ -1,7 +1,19 @@
-from data_types import null, atom
+import sys
+from typing import List
+from data_types import nil, atom
 from parser import parse
 from lex import tokenize
-from exceptions import ArgumentsError, DuplicateError, UndefinedError, TypeError
+from exceptions import (
+    ArgumentsError,
+    DuplicateError,
+    UndefinedError,
+    TypeError,
+    BoundError,
+)
+
+# TODO: Implement operations
+operations = {}
+
 
 predicates = {}
 
@@ -9,7 +21,7 @@ predicates = {}
 def predicate(name):
     def add_to_predicate(func):
         def wrapper(*args, **kwargs):
-            return "T" if func(*args, **kwargs) else "NIL"
+            return "T" if func(*args, **kwargs) else nil
 
         predicates[name] = wrapper
 
@@ -23,7 +35,7 @@ def atom_p(value):
 
 @predicate("NULL")
 def null_p(value):
-    return value is null
+    return value is nil
 
 
 @predicate("NUMBERP")
@@ -69,71 +81,191 @@ def string_p(value):
     return isinstance(value, str)
 
 
-# TODO: Move primitives to another file
-# Primitives
+# TODO: Move identifiers to another file
+# identifiers
 
-primitives = {}
+identifiers = {}
 
 
-def primitive(name):
+def identifier(name):
     """An annotation to convert a Python function into a PrimitiveProcedure."""
 
-    def primitive_add(func):
-        primitives[name] = func
+    def add_identifier(func):
+        identifiers[name] = func
         return func
 
-    return primitive_add
+    return add_identifier
 
 
 # args[0]는 variable name, args[1]는 variable
-@primitive("SETQ")
+@identifier("SETQ")
 def set_q(args, env):
     if len(args) != 2:
-        raise ArgumentsError("Number of arguments do not match for setting variable")
+        raise ArgumentsError("Number of arguments do not match for assigning variable")
     evaluated = eval_variable(args[1], env)
     env[args[0]] = args[1]
 
 
-# just make a list and return the list
-@primitive("LIST")
-def make_list(args, env):
-    if not check_primitive(args):
+# just returns the list
+@identifier("LIST")
+def make_list(arg):
+    if not check_primitive(arg):
         raise TypeError("Types inside a list should be XXXXXXXXXXXXXX")
-    return
+    return arg
 
 
-# TODO: Implement and maybe change name
+# returns first argument of list
+@identifier("CAR")
+def car(arr):
+    check_type_list(arr)
+    if not arr:
+        raise BoundError("Cannot get first item of empty List")
+    return arr[0]
+
+
+@identifier("CDR")
+def cdr(arr):
+    check_type_list(arr)
+    return arr[1:]
+
+
+# TODO: Implement CXXXR
+
+
+@identifier("NTH")
+def nth(args: List):
+    check_number_of_args(args, 2)
+    (index, arr) = args
+    check_type_list(arr)
+    if not isinstance(index, int):
+        raise TypeError(
+            "1st Argument shoud be type int, insted received: {0}".format(type(index))
+        )
+    if len(arr) < index:
+        return nil
+    return arr[index]
+
+
+@identifier("CONS")
+def cons(args: List):
+    check_number_of_args(args, 2)
+    (arr, value) = args
+    check_type_list(arr)
+    return arr.append(value)
+
+
+# TODO: single arguments should be flattend before comming in?
+@identifier("REVERSE")
+def reverse(arr: List):
+    check_type_list(arr)
+    return arr.reversed()
+
+
+@identifier("APPEND")
+def append(arr1, arr2):
+    if not isinstance(arr1, list) or not isinstance(arr2, list):
+        raise TypeError("Both arguments should be Type List, instead received")
+    return arr1.extend(arr2)
+
+
+@identifier("LENGTH")
+def length(arr: List):
+    check_type_list(arr)
+    return len(arr)
+
+
+# @identifier("MEMBER")
+# def member()
+
+
+# Validators
+# TODO: Implement primitive checker and maybe change name
 def check_primitive(args):
     return True
 
 
+def check_type_list(arg):
+    if not isinstance(arg, list):
+        raise TypeError(
+            "Argument should be Type List, instead received: {0}".format(type(arg))
+        )
+
+
+def check_number_of_args(arg_arr: list, target: int):
+    if not len(arg_arr) == target:
+        raise ArgumentsError(
+            "Number of arguments should be {0}, instead received {1}".format(
+                target, len(arg_arr)
+            )
+        )
+
+
 def eval_variable(value, env):
+    print("Eval variable", value)
+    if isinstance(value, list):
+        return eval_brackets(value, env)
     if value in env:
         return env[value]
     if value.startswith('"') and value.endswith('"'):
         print("It's a string!")
         return value
     if value.startswith("'") and value.endswith("'"):
-        print("It's a symbol")
+        print("It's a symbol(atom)")
         return value
     if isinstance(value, int) or isinstance(value, float):
         print("It's a number!")
         return value
-    raise UndefinedError("Variable ", value, " is undefined")
+    raise UndefinedError("Variable {0} is undefined".format(value))
+
+
+def eval_brackets(arg: List, env):
+    (first, *rest) = arg
+    if first in predicates:
+        args = list(map(lambda x: eval_variable(x, env), rest))
+        if len(args) == 1:
+            args = args[0]
+        result = predicates[first](args)
+        return result
+    if first in identifiers:
+        args = list(map(lambda x: eval_variable(x, env), rest))
+        if len(args) == 1:
+            args = args[0]
+        result = predicates[first](args)
+        return result
+    if first in operations:
+        # do sth
+        return
+
+    # If first keyword is not reserved, than it's a plain list
+    return arg
 
 
 def main():
     # string = "(ATOM  X)"
     environment = {}
-    string = '(STRINGP "A")'
-    tokenized = tokenize(string)
-    parsed = parse(tokenized)
-    command = parsed[0]
-    print("command " + command)
-    if predicates[command]:
-        result = predicates[command](parsed[1])
-        print("result - ", result)
-    print(parsed)
+    # string = '(STRINGP "A")'
+    while True:
+        try:
+            tokens = []
+            words = []
+            print(">> ", end="")
+            tokens = input()
+            if tokens == "exit":
+                sys.exit()
+            tokenized = tokenize(tokens)
+            parsed = parse(tokenized)
+            print("parsed - {0}".format(parsed))
+            eval_variable(parsed, environment)
+        except UndefinedError as err:
+            print("err =" + err)
+    # tokenized = tokenize(string)
+    # parsed = parse(tokenized)
+    # command = parsed[0]
+    # print("command " + command)
+    # if predicates[command]:
+    #     result = predicates[command](parsed[1])
+    #     print("result - ", result)
+    # print(parsed)
 
 
 if __name__ == "__main__":

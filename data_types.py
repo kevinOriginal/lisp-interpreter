@@ -15,14 +15,14 @@ class atom:
         )
 
 
-class null(object):
-    """ADT for null """
+class nil(object):
+    """ADT for nil """
 
     def __repr__(self):
-        return "<null> "
+        return "<nil> "
 
     def __str__(self):
-        return "null"
+        return "nil"
 
     def __len__(self):
         return 0
@@ -34,11 +34,11 @@ class null(object):
         raise IndexError("Index out of bound")
 
     def __eq__(self, other):
-        if isinstance(other, null):
+        if isinstance(other, nil):
             return True
         return False
 
 
-null = null()  # Assignment hides the nil class; there is only one instance
+nil = nil()  # Assignment hides the nil class; there is only one instance
 
 # class number_p()

@@ -20,8 +20,12 @@ class UndefinedError(BaseException):
     def __str__(self):
         return "[UndefinedError] : %s" % self.message
 
+
 class TypeError(BaseException):
     def __str__(self):
-          return "[TypeError] : %s" % self.message
+        return "[TypeError] : %s" % self.message
 
 
+class BoundError(BaseException):
+    def __str__(self):
+        return "[BoundError] : %s" % self.message

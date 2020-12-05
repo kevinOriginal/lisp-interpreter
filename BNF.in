@@ -2,7 +2,11 @@ S’ -> s
 s -> id
 s -> value
 s -> list
+s -> symbol
 s -> stmt
+s -> array
+s -> char
+
 stmt -> arith
 arith-> ( addmul multis )
 arith -> ( subdiv s multis )
@@ -45,7 +49,7 @@ listop -> LENGTH
 multis -> s multis
 multis -> ''
 list -> ' ( multis ) 
-list -> ' s
+symbol -> ' s
 subdiv -> -
 subdiv -> /
 addmul -> +
@@ -53,6 +57,4 @@ addmul -> *
 hashlist -> ' ( hash )
 hash -> ( s s ) hash 
 hash -> ''
-
-
-
+array -> # ( multis )

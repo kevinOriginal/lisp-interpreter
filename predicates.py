@@ -167,7 +167,8 @@ def cons(args: List, env):
     arr = list(map(lambda x: safe_eval(x), arr))
     value = safe_eval(value)
     check_type_list(arr)
-    return arr.insert(0, value)
+    arr.insert(0, value)
+    return arr
 
 
 # TODO: single arguments should be flattend before comming in?
@@ -175,7 +176,8 @@ def cons(args: List, env):
 def reverse(arr: List, env):
     check_type_list(arr)
     arr = list(map(lambda x: safe_eval(x), arr))
-    return arr.reversed()
+    arr.reverse()
+    return arr
 
 
 @identifier("APPEND")
@@ -183,8 +185,9 @@ def append(args: List, env):
     for item in args:
         check_type_list(item)
     return reduce(
-        lambda x, y: x.extend(y),
-        list(map(lambda arr: list(map(lambda x: safe_eval(x)), arr), args)),
+        lambda x, y: x + y,
+        list(map(lambda arr: list(map(lambda x: safe_eval(x), arr)), args)),
+        [],
     )
 
 

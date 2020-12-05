@@ -17,7 +17,7 @@ def tokenize(chars: str):
     for token in tokens:
         if token in ['(',')',"'",'*','+','-','/','<','>','<=','>=','$','#']:
             token = {token: token}
-        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','print'] :  
+        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','print','nil'] :  
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
         elif re.compile(r'^ca[d]+r').search(token): #car {cdr}  == ca{d}r , 토큰은 cadr로 
             token = {'CADR': token.upper()}
@@ -36,5 +36,5 @@ def tokenize(chars: str):
 
 
 if __name__ == "__main__":
-    test_text = '(STRINGP #\A)'
+    test_text = '(STRINGP NIL)'
     print(tokenize(test_text))

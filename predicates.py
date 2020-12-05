@@ -108,10 +108,11 @@ def identifier(name):
 @identifier("SETQ")
 def set_q(args, env):
     check_number_of_args(args, 2)
-    evaluated = eval_variable(args[1], env)
-    env[args[0]] = args[1]
-    print("[Debug] Set var {0} = {1}".format(args[0], env[args[0]]))
-    return env[args[0]]
+    (variable, insert) = args
+    evaluated = eval_variable(insert, env)
+    env[variable] = evaluated
+    print("[Debug] Set var {0} = {1}".format(variable, env[variable]))
+    return env[variable]
 
 
 # just returns the list
@@ -200,14 +201,41 @@ def length(arr: List, env):
 def member(args: List, env):
     check_number_of_args(args, 2)
     (key, lookup) = args
-    value = eval_variable(key, env)
+    target = eval_variable(key, env)
     arr = eval_variable(lookup, env)
     check_type_list(arr)
     try:
-        index = arr.index(str(value))
+        # list.index 에 들어가면 str 형태로 비교가 되기 떄문에 str type으로 변환 후 비교를 한다.
+        index = arr.index(str(target))
         return arr[index:]
     except:
         return nil
+
+
+@identifier("ASSOC")
+def assoc(args: List, env):
+    check_number_of_args(args, 2)
+    (key, lookup) = args
+    target = eval_variable(key, env)
+    arr = eval_variable(lookup, env)
+    check_type_list(arr)
+    result = list(filter(lambda x: x[0] == target, arr))
+    if not result:
+        return nil
+    if len(result) == 1:
+        result = result[0]
+    # 같은 키가 여러 개 있을 경우 List에 담아 return을 한다.
+    return result
+
+
+@identifier("REMOVE")
+def remove(args: List, env):
+    check_number_of_args(args, 2)
+    (key, lookup) = args
+    target = eval_variable(key, env)
+    arr = eval_variable(lookup, env)
+    check_type_list(arr)
+    return list(filter(lambda x: x != target, arr))
 
 
 # Validators

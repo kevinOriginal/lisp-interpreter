@@ -7,12 +7,15 @@ class atom:
     def __repr__(self):
         return str(self.value)
 
-    def __eq__(self, compare):
+    def __eq__(self, other):
         return (
             True
-            if isinstance(compare, self.__class__) and compare.value == self.value
+            if isinstance(other, self.__class__) and other.value == self.value
             else False
         )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class string:
@@ -24,10 +27,10 @@ class string:
     def __repr__(self):
         return '"' + str(self.value) + '"'
 
-    def __eq__(self, compare):
+    def __eq__(self, other):
         return (
             True
-            if isinstance(compare, self.__class__) and compare.value == self.value
+            if isinstance(other, self.__class__) and other.value == self.value
             else False
         )
 

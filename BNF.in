@@ -50,8 +50,7 @@ listop -> LENGTH
 multis -> s multis
 multis -> ''
 list -> ' ( multival )
-multival -> ( s ) multival
-multival -> ( ) multival
+multival -> ( multis ) multival
 multival -> s multival
 multival -> ''  
 symbol -> ' s

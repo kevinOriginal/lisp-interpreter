@@ -25,24 +25,34 @@ with open("./cfg.pickle", "rb") as f:
 
 
 # Collecting all the CFGs into one list, so that it can be reached by its number
-with open("./slr_table6.pickle", "rb") as f:
+with open("./slr_table9.pickle", "rb") as f:
 
     States = pickle.load(f)
 
 
-def read_from_tokens(values: list):
+def tokens_to_ast(values: list):
     token = values.pop(0)
     if token == "'":
         peek = values[0]
-        l = read_from_tokens(values)  # [ 1, 2, 3] 이 리턴된다
+        l = tokens_to_ast(values)  # [ 1, 2, 3] 이 리턴된다
         if peek[0] == "(":
             return l
         else:
-            return [l]
+            return "'" + l + "'"
+
+    if token == "#":
+        peek = values[0]
+        l = tokens_to_ast(values)  # [ 1, 2, 3] 이 리턴된다
+        if peek[0] == "(":
+            l.insert(0, "#")
+            return l
+        else:
+            return '"' + l + '"'
+
     if token == "(":
         L = []
         while values[0] != ")":
-            L.append(read_from_tokens(values))
+            L.append(tokens_to_ast(values))
         values.pop(0)  # pop off ')'
         return L
     elif token == ")":
@@ -110,7 +120,7 @@ def parse(in_put: list) -> bool:
                     )  # push GOTO into the stack
             elif decision == "acc":
                 print("accepted")
-                return read_from_tokens(values)
+                return tokens_to_ast(values)
                 break
             else:
                 raise UndefinedDecisionError(
@@ -132,7 +142,15 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(ASSOC 'X '((X 1) (Y 2)))"
+    string = "(LIST 'X X 'Y)"
+    # tokenized = tokenize(string)
+
+    string = "(STRINGP #\\A)"
+    # tokenized = tokenize(string)
+
+    string = "(STRINGP NIL)"
+    string = "(APPEND '(#\\n #\\b))"
     tokenized = tokenize(string)
+
     print(tokenized)
     print(parse(tokenized))

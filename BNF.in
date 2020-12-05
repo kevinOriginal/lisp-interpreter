@@ -49,7 +49,11 @@ listop -> REVERSE
 listop -> LENGTH
 multis -> s multis
 multis -> ''
-list -> ' ( multis ) 
+list -> ' ( multival )
+multival -> ( s ) multival
+multival -> ( ) multival
+multival -> s multival
+multival -> ''  
 symbol -> ' s
 subdiv -> -
 subdiv -> /

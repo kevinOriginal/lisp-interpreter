@@ -25,7 +25,7 @@ with open("./cfg.pickle", "rb") as f:
 
 
 # Collecting all the CFGs into one list, so that it can be reached by its number
-with open("./slr_table8.pickle", "rb") as f:
+with open("./slr_table9.pickle", "rb") as f:
 
     States = pickle.load(f)
 
@@ -142,7 +142,15 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(STRINGP #\\x)"
+    string = "(LIST 'X X 'Y)"
+    # tokenized = tokenize(string)
+
+    string = "(STRINGP #\\A)"
+    # tokenized = tokenize(string)
+
+    string = "(STRINGP NIL)"
+    string = "(APPEND '(#\\n #\\b))"
     tokenized = tokenize(string)
+
     print(tokenized)
     print(parse(tokenized))

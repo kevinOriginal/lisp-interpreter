@@ -2,6 +2,7 @@ import pickle
 import pip
 import pandas
 from lex import tokenize
+import re
 
 """
 You can run the program by using such format:
@@ -54,6 +55,12 @@ def tokens_to_ast(values: list):
         while values[0] != ")":
             L.append(tokens_to_ast(values))
         values.pop(0)  # pop off ')'
+        try:
+            CADR = re.match("^C[AD]+R$", L[0])
+        except:
+            CADR = False
+        if CADR:
+            L = CADRtransform(L)
         return L
     elif token == ")":
         raise SyntaxError("unexpected )")
@@ -65,6 +72,18 @@ def tokens_to_ast(values: list):
                 return float(token)
             except:
                 return token
+
+
+def CADRtransform(cadr_l: list):
+    cadr = cadr_l[0]
+    result = []
+    if cadr == "CAR" or cadr == "CDR":
+        return cadr_l
+
+    if cadr[1] == "A":
+        return ["CAR", CADRtransform(["C" + cadr[2:], cadr_l[1]])]
+    elif cadr[1] == "D":
+        return ["CDR", CADRtransform(["C" + cadr[2:], cadr_l[1]])]
 
 
 def parse(in_put: list) -> bool:

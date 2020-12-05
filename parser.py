@@ -44,7 +44,8 @@ def tokens_to_ast(values: list):
         peek = values[0]
         l = tokens_to_ast(values)  # [ 1, 2, 3] 이 리턴된다
         if peek[0] == "(":
-            return l.insert(0, "#")
+            l.insert(0, "#")
+            return l
         else:
             return '"' + l + '"'
 
@@ -141,7 +142,7 @@ def parse(in_put: list) -> bool:
 
 
 if __name__ == "__main__":
-    string = "(ASSOC 'X '((X 1) (Y 2)))"
+    string = "(STRINGP #(0 1 2))"
     tokenized = tokenize(string)
     print(tokenized)
     print(parse(tokenized))

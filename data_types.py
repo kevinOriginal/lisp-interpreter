@@ -2,7 +2,7 @@ class atom:
     """ADT for atom"""
 
     def __init__(self, value):
-        self.value = value
+        self.value = value.strip("'")
 
     def __repr__(self):
         return str(self.value)

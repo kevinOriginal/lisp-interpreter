@@ -100,10 +100,10 @@ def identifier(name):
 # args[0]는 variable name, args[1]는 variable
 @identifier("SETQ")
 def set_q(args, env):
-    if len(args) != 2:
-        raise ArgumentsError("Number of arguments do not match for assigning variable")
+    check_number_of_args(args, 2)
     evaluated = eval_variable(args[1], env)
     env[args[0]] = args[1]
+    print("[Debug] Set var {0} = {1}".format(args[0], env[args[0]]))
 
 
 # just returns the list
@@ -211,26 +211,38 @@ def eval_variable(value, env):
         return value
     if value.startswith("'") and value.endswith("'"):
         print("It's a symbol(atom)")
-        return value
+        print("atom - ", atom(value))
+        return atom(value)
     if isinstance(value, int) or isinstance(value, float):
         print("It's a number!")
         return value
-    raise UndefinedError("Variable {0} is undefined".format(value))
+    # raise UndefinedError("Variable {0} is undefined".format(value))
+    return value
 
 
 def eval_brackets(arg: List, env):
     (first, *rest) = arg
     if first in predicates:
+        print(
+            "Fist arguement <{0}> is a predicate <{1}>".format(
+                first, predicate[first].__name__
+            )
+        )
         args = list(map(lambda x: eval_variable(x, env), rest))
         if len(args) == 1:
             args = args[0]
         result = predicates[first](args)
         return result
     if first in identifiers:
+        print(
+            "Fist arguement <{0}> is a identifier <{1}>".format(
+                first, identifiers[first].__name__
+            )
+        )
         args = list(map(lambda x: eval_variable(x, env), rest))
         if len(args) == 1:
             args = args[0]
-        result = predicates[first](args)
+        result = identifiers[first](args)
         return result
     if first in operations:
         # do sth
@@ -241,9 +253,7 @@ def eval_brackets(arg: List, env):
 
 
 def main():
-    # string = "(ATOM  X)"
     environment = {}
-    # string = '(STRINGP "A")'
     while True:
         try:
             tokens = []
@@ -255,17 +265,10 @@ def main():
             tokenized = tokenize(tokens)
             parsed = parse(tokenized)
             print("parsed - {0}".format(parsed))
-            eval_variable(parsed, environment)
+            print("--------Evaluate start ----------")
+            print(eval_variable(parsed, environment))
         except UndefinedError as err:
-            print("err =" + err)
-    # tokenized = tokenize(string)
-    # parsed = parse(tokenized)
-    # command = parsed[0]
-    # print("command " + command)
-    # if predicates[command]:
-    #     result = predicates[command](parsed[1])
-    #     print("result - ", result)
-    # print(parsed)
+            print(err)
 
 
 if __name__ == "__main__":

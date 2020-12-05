@@ -171,7 +171,6 @@ def cons(args: List, env):
     return arr
 
 
-# TODO: single arguments should be flattend before comming in?
 @identifier("REVERSE")
 def reverse(arr: List, env):
     check_type_list(arr)
@@ -197,8 +196,18 @@ def length(arr: List, env):
     return len(arr)
 
 
-# @identifier("MEMBER")
-# def member()
+@identifier("MEMBER")
+def member(args: List, env):
+    check_number_of_args(args, 2)
+    (key, lookup) = args
+    value = eval_variable(key, env)
+    arr = eval_variable(lookup, env)
+    check_type_list(arr)
+    try:
+        index = arr.index(str(value))
+        return arr[index:]
+    except:
+        return nil
 
 
 # Validators

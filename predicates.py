@@ -10,6 +10,7 @@ from exceptions import (
     TypeError,
     BoundError,
 )
+from functools import reduce
 
 # TODO: Implement operations
 operations = {}
@@ -110,6 +111,7 @@ def set_q(args, env):
     evaluated = eval_variable(args[1], env)
     env[args[0]] = args[1]
     print("[Debug] Set var {0} = {1}".format(args[0], env[args[0]]))
+    return env[args[0]]
 
 
 # just returns the list
@@ -125,17 +127,20 @@ def make_list(arg, env):
 @identifier("CAR")
 def car(arr, env):
     check_type_list(arr)
-    arr = list(map(lambda x: eval_primitive(x), arr))
-    if not arr:
+    # arr = list(map(lambda x: eval_variable(x, env), arr))
+    evaled = eval_variable(arr, env)
+    if not evaled:
         raise BoundError("Cannot get first item of empty List")
-    return arr[0]
+    return evaled[0]
 
 
 @identifier("CDR")
-def cdr(arr, env):
-    check_type_list(arr)
-    arr = list(map(lambda x: eval_primitive(x), arr))
-    return arr[1:]
+def cdr(arg, env):
+    print("CDR REceived", arg)
+    # check_type_list(arr)
+    evaled = eval_variable(arg, env)
+    # arr = list(map(lambda x: eval_variable(x, env), arr))
+    return evaled[1:]
 
 
 # TODO: Implement CXXXR
@@ -158,25 +163,29 @@ def nth(args: List, env):
 @identifier("CONS")
 def cons(args: List, env):
     check_number_of_args(args, 2)
-    (arr, value) = args
+    (value, arr) = args
+    arr = list(map(lambda x: safe_eval(x), arr))
+    value = safe_eval(value)
     check_type_list(arr)
-    return arr.append(value)
+    return arr.insert(0, value)
 
 
 # TODO: single arguments should be flattend before comming in?
 @identifier("REVERSE")
 def reverse(arr: List, env):
     check_type_list(arr)
+    arr = list(map(lambda x: safe_eval(x), arr))
     return arr.reversed()
 
 
 @identifier("APPEND")
 def append(args: List, env):
-    check_number_of_args(args, 2)
-    (arr1, arr2) = args
-    if not isinstance(arr1, list) or not isinstance(arr2, list):
-        raise TypeError("Both arguments should be Type List, instead received")
-    return arr1.extend(arr2)
+    for item in args:
+        check_type_list(item)
+    return reduce(
+        lambda x, y: x.extend(y),
+        list(map(lambda arr: list(map(lambda x: safe_eval(x)), arr), args)),
+    )
 
 
 @identifier("LENGTH")
@@ -221,8 +230,19 @@ def eval_primitive(value):
     if isinstance(value, int) or isinstance(value, float):
         print("It's a number!")
         return (value, True)
-    print("[IDK] - ", value)
+    print("[IDK - Not primitive]")
     return (value, False)
+
+
+def safe_eval(value):
+    if isinstance(value, list):
+        print("It's a list")
+        return list(map(lambda x: safe_eval(x), value))
+    (evaled, is_primitive) = eval_primitive(value)
+    if is_primitive:
+        return evaled
+    print("[Assuming Inside List] converting into atom - ", value)
+    return atom(value)
 
 
 def eval_variable(value, env):
@@ -231,8 +251,10 @@ def eval_variable(value, env):
         return eval_brackets(value, env)
     if value in env:
         return env[value]
-    (result, is_primitive) = eval_primitive(value)
-    return result
+    (evaled, is_primitive) = eval_primitive(value)
+    if is_primitive:
+        return evaled
+    raise UndefinedError("Variable {0} is undefined".format(value))
     # if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
     #     print("It's a string!")
     #     return value
@@ -243,41 +265,37 @@ def eval_variable(value, env):
     # if isinstance(value, int) or isinstance(value, float):
     #     print("It's a number!")
     #     return value
-    # raise UndefinedError("Variable {0} is undefined".format(value))
-    return value
 
 
 #  WARNING!! : Some variables must be lazy evaluated!
 def eval_brackets(arg: List, env):
+    print("Eval brackets", arg)
     (first, *rest) = arg
-    if first in predicates:
+    if isinstance(first, str) and first in predicates:
         print(
             "Fist arguement <{0}> is a predicate <{1}>".format(
                 first, predicate[first].__name__
             )
         )
-        # args = list(map(lambda x: eval_variable(x, env), rest))
         if len(rest) == 1:
             rest = rest[0]
         result = predicates[first](rest)
         return result
-    if first in identifiers:
+    if isinstance(first, str) and first in identifiers:
         print(
             "Fist arguement <{0}> is a identifier <{1}>".format(
                 first, identifiers[first].__name__
             )
         )
-        # args = list(map(lambda x: eval_variable(x, env), rest))
         if len(rest) == 1:
             rest = rest[0]
         result = identifiers[first](rest, env)
         return result
-    if first in operations:
-        # do sth
+    if isinstance(first, str) and first in operations:
+        # TODO: Implement
         return
-
     # If first keyword is not reserved, than it's a plain list so we should convert it to atoms
-    return list(map(lambda x: eval_primitive(x), arg))
+    return list(map(lambda x: safe_eval(x), arg))
 
 
 def main():
@@ -295,8 +313,8 @@ def main():
             print("parsed - {0}".format(parsed))
             print("--------Evaluate start ----------")
             print(eval_variable(parsed, environment))
-        except UndefinedError as err:
-            print(err)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == "__main__":

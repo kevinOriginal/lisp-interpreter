@@ -7,6 +7,7 @@ from validators import (
 predicates = {}
 
 # decorator for primitves
+# Predicate은 리턴값이 T이거나 nil 이어야 하므로 다음과 깉이 써준다.
 def predicate(name):
     def add_to_predicate(func):
         def wrapper(*args, **kwargs):

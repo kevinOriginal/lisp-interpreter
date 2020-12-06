@@ -1,3 +1,4 @@
+#  Atom type을 새로 생성
 class atom:
     """ADT for atom"""
 
@@ -18,6 +19,7 @@ class atom:
         return not self.__eq__(other)
 
 
+# Atom과의 구별을 위해 기존 python의 str 타입 말고 새로운 string data type을 새로 만들었다.
 class string:
     """ADT for string"""
 
@@ -40,6 +42,7 @@ class string:
         )
 
 
+# 따로 Nil Type을 만들어주었다.
 class nil(object):
     """ADT for nil """
 
@@ -64,6 +67,5 @@ class nil(object):
         return False
 
 
-nil = nil()  # Assignment hides the nil class; there is only one instance
-
-# class number_p()
+# nil이 존재하는 변수처럼 써주기 위한 처리 방법
+nil = nil()

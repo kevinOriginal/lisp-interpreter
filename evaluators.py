@@ -7,8 +7,6 @@ from operations import operations
 from exceptions import (
     UndefinedError,
 )
-from parser import parse
-from lex import tokenize
 
 
 def eval_primitive(value):
@@ -91,36 +89,3 @@ def eval_brackets(arg: list, env):
 
     # 만약에 bracket의 첫번 째 keyword가 reserved된 예약어가 아니라면 이것은 list이므로 이를 parsing해야 한다.
     return list(map(lambda x: safe_eval(x), arg))
-
-
-def main():
-    environment = {}
-    while True:
-        try:
-            tokens = []
-            words = []
-            print(">> ", end="")
-            tokens = input()
-            # while True:
-            #     if keyboard.is_pressed("enter"):
-            #         break
-            #     try:
-            #         line = input()
-            #     except EOFError:
-            #         break
-            #     tokens.append(line)
-            #  print("contents", tokens)
-            if tokens == "exit":
-                sys.exit()
-            tokenized = tokenize(tokens)
-            parsed = parse(tokenized)
-            print("parsed - {0}".format(parsed))
-            print("--------Evaluate start ----------")
-            print(eval_variable(parsed, environment))
-        except Exception as e:
-            print(traceback.format_exc())
-            print(e)
-
-
-if __name__ == "__main__":
-    main()

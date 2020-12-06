@@ -36,7 +36,7 @@ def tokenize(chars: str):
                     text = token.upper().replace('#\\','')
                 elif token.lower() in char:
                     text = token.lower().replace('#\\','')
-                token = {'char': f'"{text}"' }
+                token = {'char': f"'{text}'" }
             else:
                 token = {'id': token}
         tokenized.append(token)

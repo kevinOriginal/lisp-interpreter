@@ -45,7 +45,6 @@ def tokens_to_ast(values: list):
         peek = values[0]
         l = tokens_to_ast(values)  # [ 1, 2, 3] 이 리턴된다
         if peek[0] == "(":
-            l.insert(0, "#")
             return l
         else:
             return '"' + l + '"'

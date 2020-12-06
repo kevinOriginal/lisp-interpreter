@@ -1,3 +1,6 @@
+# 에러 처리를 위한 여러가지 exception handler 들을 만들었다.
+
+#  가장 기본이 되는 Base Exception handler이다. 이걸 extend 해서 쓰면 된다.
 class LispException(Exception):
     def __init__(self, message):
         self.message = message

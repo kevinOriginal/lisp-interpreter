@@ -33,6 +33,8 @@ def tokenize(chars: str):
     for token in tokens:
         if token in ['(',')',"'",'*','+','-','/','<','>','<=','>=','$','#']:
             token = {token: token}
+        elif token == '=':
+            token = {'EQUAL': 'EQUAL'}
         elif token == '%':
             token = {'/' : '%' }
         elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  

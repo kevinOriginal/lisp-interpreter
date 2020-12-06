@@ -49,7 +49,7 @@ def tokenize(chars: str):
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
         # print의 경우, 프로젝트에서 제시된 함수가 아니기에 문법적으로 순서가 비슷한 STRINGP로 key를 넘기고 value로는 PRINT를 넘김. parser에는 stringp의 문법 검증이 이루어지지만 반환값은 print로 하여 함수처리에서는 print 함수의 기능을 함.
         elif token == 'print':
-            token = {'STRINGP': token}
+            token = {'STRINGP': token.upper()}
         # car과 cdr의 합성인 c[a,d]r 은 key를 cadr로 토큰화
         elif re.compile(r'^c[a]*[d]*[a*,d*]*r').search(token):         
             token = {'CADR': token.upper()}  
@@ -74,5 +74,5 @@ def tokenize(chars: str):
 
 
 if __name__ == "__main__":
-    test_text = '(+ "x" "y")'
+    test_text = '(COND ((> X 0) (+ X 1))'
     print(tokenize(test_text))

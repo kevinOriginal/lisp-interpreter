@@ -16,6 +16,76 @@ from functools import reduce
 operations = {}
 
 
+def operation(name):
+    def add_operation(func):
+        def wrapper(*args, **kwargs):
+            vals = list(*args)
+            check_number_of_args(vals, 2)
+            (x, y) = vals
+            return func(x, y)
+
+        operations[name] = wrapper
+
+    return add_operation
+
+
+@operation("+")
+def add(x, y):
+
+    if is_number(x) and is_number(y):
+        return x + y
+    if isinstance(x, string) and isinstance(y, string):
+        return x + y
+    raise TypeError(
+        "Cannot apply addition on types ({0}), ({1})".format(type(x), type(y))
+    )
+
+
+@operation("-")
+def subtract(x, y):
+    if is_number(x) and is_number(y):
+        return x - y
+    raise TypeError(
+        "Cannot apply subtraction on two different types ({0}), ({1})".format(
+            type(x), type(y)
+        )
+    )
+
+
+@operation("*")
+def multiply(x, y):
+    if is_number(x) and is_number(y):
+        return x * y
+    raise TypeError(
+        "Cannot apply multiplication on two different types ({0}), ({1})".format(
+            type(x), type(y)
+        )
+    )
+
+
+@operation("/")
+def divide(x, y):
+    if is_number(x) and is_number(y):
+        return x * y
+    raise TypeError(
+        "Cannot apply division on two different types ({0}), ({1})".format(
+            type(x), type(y)
+        )
+    )
+
+
+# 추가 구현
+@operation("%")
+def mod(x, y):
+    if is_number(x) and is_number(y):
+        return x % y
+    raise TypeError(
+        "Cannot apply modulo on two different types ({0}), ({1})".format(
+            type(x), type(y)
+        )
+    )
+
+
 predicates = {}
 
 # decorator for primitves
@@ -275,6 +345,10 @@ def check_number_of_args(arg_arr: list, target: int):
                 target, len(arg_arr)
             )
         )
+
+
+def is_number(x):
+    return isinstance(x, int) or isinstance(x, float)
 
 
 def eval_primitive(value):

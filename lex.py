@@ -37,7 +37,7 @@ def tokenize(chars: str):
             token = {'EQUAL': 'EQUAL'}
         elif token == '%':
             token = {'/' : '%' }
-        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  
+        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','cond' ,'reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
         elif token == 'print':
             token = {'STRINGP': token}
@@ -61,5 +61,5 @@ def tokenize(chars: str):
 
 
 if __name__ == "__main__":
-    test_text = '(+ "xhi h" "y")'
+    test_text = '(COND ((> X 0) (+ X 1))((= X 0) (+ X 2))((< X 0) (+ X 3)))'
     print(tokenize(test_text))

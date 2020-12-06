@@ -25,7 +25,7 @@ class string:
         self.value = value.strip("'")
 
     def __repr__(self):
-        return '"' + str(self.value) + '"'
+        return str(self.value).capitalize()
 
     def __eq__(self, other):
         return (

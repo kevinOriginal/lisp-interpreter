@@ -11,7 +11,7 @@ def tokenize(chars: str):
         else:
             break
     while True:
-        re_chars = re.compile('("\w+\s+")+').search(chars)
+        re_chars = re.compile('"(\w+\s+)+"').search(chars)
         if re_chars:
             chars = chars[:re_chars.start()] + chars[re_chars.start():re_chars.end()].replace(' ', '') + chars[re_chars.end():]
         else:
@@ -61,5 +61,5 @@ def tokenize(chars: str):
 
 
 if __name__ == "__main__":
-    test_text = '(COND ((> X 0) (+ X 1))((= X 0) (+ X 2))((< X 0) (+ X 3)))'
+    test_text = '(+ "x" "y")'
     print(tokenize(test_text))

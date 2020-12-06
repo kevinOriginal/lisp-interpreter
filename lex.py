@@ -11,7 +11,7 @@ def tokenize(chars: str):
         else:
             break
     while True:
-        re_chars = re.compile("(\w+\s+)+").search(chars)
+        re_chars = re.compile('("\w+\s+")+').search(chars)
         if re_chars:
             chars = chars[:re_chars.start()] + chars[re_chars.start():re_chars.end()].replace(' ', '') + chars[re_chars.end():]
         else:
@@ -37,7 +37,7 @@ def tokenize(chars: str):
             token = {'EQUAL': 'EQUAL'}
         elif token == '%':
             token = {'/' : '%' }
-        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','cond' ,'reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  
+        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons' ,'reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
         elif token == 'print':
             token = {'STRINGP': token}

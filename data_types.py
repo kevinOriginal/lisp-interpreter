@@ -25,7 +25,12 @@ class string:
         self.value = value.strip("'")
 
     def __repr__(self):
-        return str(self.value).capitalize()
+        return str(self.value)
+
+    def __add__(self, other):
+        return string(
+            '"' + str(self.value.strip('"')) + str(other.value.strip('"')) + '"'
+        )
 
     def __eq__(self, other):
         return (
@@ -39,10 +44,10 @@ class nil(object):
     """ADT for nil """
 
     def __repr__(self):
-        return "<nil> "
+        return "NIL"
 
     def __str__(self):
-        return "nil"
+        return "NIL"
 
     def __len__(self):
         return 0

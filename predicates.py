@@ -414,8 +414,10 @@ def eval_brackets(arg: List, env):
         result = identifiers[first](rest, env)
         return result
     if isinstance(first, str) and first in operations:
-        # TODO: Implement
-        return
+        #  Operation 역시 모두 eval 된 값만 연산 하면 되기 때문에 미리 한다.
+        rest = list(map(lambda x: eval_variable(x, env), rest))
+        result = operations[first](rest)
+        return result
     # If first keyword is not reserved, than it's a plain list so we should convert it to atoms
     return list(map(lambda x: safe_eval(x), arg))
 

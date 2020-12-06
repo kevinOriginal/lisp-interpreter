@@ -1,4 +1,5 @@
-import sys
+import sys, os
+import traceback
 from typing import List
 from data_types import nil, atom, string
 from parser import parse
@@ -19,10 +20,7 @@ operations = {}
 def operation(name):
     def add_operation(func):
         def wrapper(*args, **kwargs):
-            vals = list(*args)
-            check_number_of_args(vals, 2)
-            (x, y) = vals
-            return func(x, y)
+            return func(*args, **kwargs)
 
         operations[name] = wrapper
 
@@ -30,41 +28,52 @@ def operation(name):
 
 
 @operation("+")
-def add(x, y):
-
+def add(args):
+    if len(args) == 0:
+        return 0
+    (x, y) = args
     if is_number(x) and is_number(y):
         return x + y
     if isinstance(x, string) and isinstance(y, string):
         return x + y
-    raise TypeError(
-        "Cannot apply addition on types ({0}), ({1})".format(type(x), type(y))
-    )
+    raise TypeError("Cannot apply addition on types {0}, {1}".format(type(x), type(y)))
 
 
 @operation("-")
-def subtract(x, y):
+def subtract(args):
+    if len(args) == 1:
+        return 0
+    (x, y) = args
     if is_number(x) and is_number(y):
         return x - y
     raise TypeError(
-        "Cannot apply subtraction on two different types ({0}), ({1})".format(
+        "Cannot apply subtraction on two different types {0}, {1}".format(
             type(x), type(y)
         )
     )
 
 
 @operation("*")
-def multiply(x, y):
+def multiply(args):
+    if len(args) == 0:
+        return 1
+    check_number_of_args(args, 2)
+    (x, y) = args
     if is_number(x) and is_number(y):
         return x * y
     raise TypeError(
-        "Cannot apply multiplication on two different types ({0}), ({1})".format(
+        "Cannot apply multiplication on two different types {0}, {1}".format(
             type(x), type(y)
         )
     )
 
 
 @operation("/")
-def divide(x, y):
+def divide(args):
+    if len(args) == 1:
+        return 1
+    check_number_of_args(args, 2)
+    (x, y) = args
     if is_number(x) and is_number(y):
         return x * y
     raise TypeError(
@@ -76,7 +85,11 @@ def divide(x, y):
 
 # 추가 구현
 @operation("%")
-def mod(x, y):
+def mod(args):
+    if len(args) == 1:
+        return 1
+    check_number_of_args(args, 2)
+    (x, y) = args
     if is_number(x) and is_number(y):
         return x % y
     raise TypeError(
@@ -145,6 +158,26 @@ def less_than(args):
     return x < y
 
 
+# 추가 구현
+@predicate(">")
+def less_than(args):
+    check_number_of_args(args, 2)
+    (x, y) = args
+    if type(x) is not type(y):
+        raise TypeError("Argument Type", x, " and ", y, " do not match")
+    return x > y
+
+
+# 추가 구현
+@predicate("<=")
+def less_than(args):
+    check_number_of_args(args, 2)
+    (x, y) = args
+    if type(x) is not type(y):
+        raise TypeError("Argument Type", x, " and ", y, " do not match")
+    return x <= y
+
+
 @predicate(">=")
 def greater_or_equal_to(args):
     check_number_of_args(args, 2)
@@ -181,7 +214,6 @@ def set_q(args, env):
     (variable, insert) = args
     evaluated = eval_variable(insert, env)
     env[variable] = evaluated
-    print("[Debug] Set var {0} = {1}".format(variable, env[variable]))
     return env[variable]
 
 
@@ -318,6 +350,41 @@ def subst(args: List, env):
     return list(map(lambda x: x if x != replace_from else replace_to, arr))
 
 
+# Conditionals
+
+conditionals = {}
+
+
+def conditional(name):
+    def add_conditional(func):
+        conditionals[name] = func
+        return func
+
+    return add_conditional
+
+
+@conditional("IF")
+def if_stmt(args, env):
+    if len(args) == 2:
+        (condition, on_true) = args
+    if len(args) == 3:
+        (condition, on_true, on_false) = args
+    condition = eval_variable(condition, env)
+    if condition:
+        return eval_variable(on_true, env)
+    else:
+        return eval_variable(args[2], env) if len(args) == 3 else nil
+
+
+@conditional("COND")
+def cond_stmt(args, env):
+    for stmt in args:
+        check_number_of_args(stmt, 2)
+        (condition, on_true) = stmt
+        if eval_variable(condition, env):
+            return eval_variable(on_true, env)
+
+
 # Validators
 # TODO: Implement primitive checker and maybe change name
 def check_primitive(args):
@@ -396,7 +463,8 @@ def eval_brackets(arg: List, env):
     print("Eval brackets", arg)
     (first, *rest) = arg
     if isinstance(first, str) and first in predicates:
-        print("Fist arguement <{0}> is a predicate".format(first))
+        print("First arguement <{0}> is a [predicate]".format(first))
+
         # Predicate은 모두 eval된 값을 연산 하기 때문에 미리 eval 해줘도 괜찮다.
         rest = list(map(lambda x: eval_variable(x, env), rest))
         if len(rest) == 1:
@@ -405,7 +473,7 @@ def eval_brackets(arg: List, env):
         return result
     if isinstance(first, str) and first in identifiers:
         print(
-            "Fist arguement <{0}> is a identifier <{1}>".format(
+            "Fist arguement <{0}> is a [identifier] <{1}>".format(
                 first, identifiers[first].__name__
             )
         )
@@ -414,10 +482,17 @@ def eval_brackets(arg: List, env):
         result = identifiers[first](rest, env)
         return result
     if isinstance(first, str) and first in operations:
-        #  Operation 역시 모두 eval 된 값만 연산 하면 되기 때문에 미리 한다.
+        print("First arguement <{0}> is a [operator]".format(first))
+        # Operation 역시 모두 eval 된 값만 연산 하면 되기 때문에 미리 한다.
         rest = list(map(lambda x: eval_variable(x, env), rest))
         result = operations[first](rest)
         return result
+    if isinstance(first, str) and first in conditionals:
+        print("First arguement <{0}> is a [conditional]".format(first))
+        # TODO: implement lazy evaluation
+        result = conditionals[first](rest, env)
+        return result
+
     # If first keyword is not reserved, than it's a plain list so we should convert it to atoms
     return list(map(lambda x: safe_eval(x), arg))
 
@@ -430,6 +505,15 @@ def main():
             words = []
             print(">> ", end="")
             tokens = input()
+            # while True:
+            #     if keyboard.is_pressed("enter"):
+            #         break
+            #     try:
+            #         line = input()
+            #     except EOFError:
+            #         break
+            #     tokens.append(line)
+            #  print("contents", tokens)
             if tokens == "exit":
                 sys.exit()
             tokenized = tokenize(tokens)
@@ -438,6 +522,7 @@ def main():
             print("--------Evaluate start ----------")
             print(eval_variable(parsed, environment))
         except Exception as e:
+            print(traceback.format_exc())
             print(e)
 
 

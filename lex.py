@@ -1,11 +1,22 @@
 import re
 
 def tokenize(chars: str):
+    strings = []
+    _text = chars
+    while True:
+        re_string = re.compile('"[\w+\s*]+"').search(_text)
+        if re_string:
+            strings.append(_text[re_string.start():re_string.end()])
+            _text = _text[:re_string.start()] + _text[re_string.end():]
+        else:
+            break
+    while True:
+        re_chars = re.compile("(\w+\s+)+").search(chars)
+        if re_chars:
+            chars = chars[:re_chars.start()] + chars[re_chars.start():re_chars.end()].replace(' ', '') + chars[re_chars.end():]
+        else:
+            break
 
-    re_string = re.compile('"[\w+\s*]+"').search(chars)
-    if re_string:
-        string = chars[re_string.start():re_string.end()]
-        chars = chars[:re_string.start()] + string.replace(' ', '')+ chars[re_string.end():]
     char = []
     _text = chars
     while True:
@@ -22,6 +33,8 @@ def tokenize(chars: str):
     for token in tokens:
         if token in ['(',')',"'",'*','+','-','/','<','>','<=','>=','$','#']:
             token = {token: token}
+        elif token == '%':
+            token = {'/' : '%' }
         elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','print','nil'] :  
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
         elif re.compile(r'^c[a]*[d]*[a*,d*]*r').search(token):         
@@ -29,8 +42,8 @@ def tokenize(chars: str):
         else:
             if re.compile("[\d]+.{0,1}[\d]*").search(token):
                 token = {'value': token}                 
-            elif re.compile('"[\w+\s*]+"').search(token):
-                token = {'value': string}
+            elif re.compile('"\w+"').search(token):
+                token = {'value': strings.pop(0)}
             elif re.compile(r'^#\\\w').search(token):
                 if token.upper() in char:
                     text = token.upper().replace('#\\','')
@@ -44,5 +57,5 @@ def tokenize(chars: str):
 
 
 if __name__ == "__main__":
-    test_text = "Cadadddadadadar '((1 2) 3 3)"
+    test_text = '(+ "xhi h" "y")'
     print(tokenize(test_text))

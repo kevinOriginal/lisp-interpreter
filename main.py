@@ -20,6 +20,13 @@ def prettifyOutput(arg):
     return arg
 
 
+def interpret(arg, env):
+    tokenized = tokenize(arg)
+    parsed = parse(tokenized)
+    result = eval_variable(parsed, env)
+    return prettifyOutput(result)
+
+
 def main():
     environment = {}
     while True:
@@ -28,15 +35,6 @@ def main():
             words = []
             print(">> ", end="")
             tokens = input()
-            # while True:
-            #     if keyboard.is_pressed("enter"):
-            #         break
-            #     try:
-            #         line = input()
-            #     except EOFError:
-            #         break
-            #     tokens.append(line)
-            #  print("contents", tokens)
             if tokens == "exit":
                 sys.exit()
             tokenized = tokenize(tokens)

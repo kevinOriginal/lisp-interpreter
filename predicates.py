@@ -46,11 +46,13 @@ def number_p(value):
 
 @predicate("ZEROP")
 def zero_p(value):
+    check_type_number(value)
     return value == 0
 
 
 @predicate("MINUSP")
 def minus_p(value):
+    check_type_number(value)
     return value < 0
 
 
@@ -85,7 +87,7 @@ def greater_or_equal_to(args):
 # TODO: need to handle dobule quotes
 @predicate("STRINGP")
 def string_p(value):
-    return isinstance(value, str)
+    return isinstance(value, string)
 
 
 # TODO: Move identifiers to another file
@@ -95,8 +97,6 @@ identifiers = {}
 
 
 def identifier(name):
-    """An annotation to convert a Python function into a PrimitiveProcedure."""
-
     def add_identifier(func):
         identifiers[name] = func
         return func
@@ -254,6 +254,13 @@ def check_primitive(args):
     return True
 
 
+def check_type_number(arg):
+    if not isinstance(arg, int) and not isinstance(arg, float):
+        raise TypeError(
+            "Argument should be Type Number, instead received: {0}".format(type(arg))
+        )
+
+
 def check_type_list(arg):
     if not isinstance(arg, list):
         raise TypeError(
@@ -280,6 +287,9 @@ def eval_primitive(value):
     if isinstance(value, int) or isinstance(value, float):
         print("It's a number!")
         return (value, True)
+    if isinstance(value, str) and (value == "NIL"):
+        print("It's nil!")
+        return (nil, True)
     print("[IDK - Not primitive]")
     return (value, False)
 
@@ -305,16 +315,6 @@ def eval_variable(value, env):
     if is_primitive:
         return evaled
     raise UndefinedError("Variable {0} is undefined".format(value))
-    # if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
-    #     print("It's a string!")
-    #     return value
-    # if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
-    #     print("It's a symbol(atom)")
-    #     print("atom - ", atom(value))
-    #     return atom(value)
-    # if isinstance(value, int) or isinstance(value, float):
-    #     print("It's a number!")
-    #     return value
 
 
 #  WARNING!! : Some variables must be lazy evaluated!
@@ -322,11 +322,9 @@ def eval_brackets(arg: List, env):
     print("Eval brackets", arg)
     (first, *rest) = arg
     if isinstance(first, str) and first in predicates:
-        print(
-            "Fist arguement <{0}> is a predicate <{1}>".format(
-                first, predicate[first].__name__
-            )
-        )
+        print("Fist arguement <{0}> is a predicate".format(first))
+        # Predicate은 모두 eval된 값을 연산 하기 때문에 미리 eval 해줘도 괜찮다.
+        rest = list(map(lambda x: eval_variable(x, env), rest))
         if len(rest) == 1:
             rest = rest[0]
         result = predicates[first](rest)

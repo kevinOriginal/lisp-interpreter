@@ -6,7 +6,8 @@ from validators import is_number
 from evaluators import eval_variable
 from data_types import nil, atom, string
 
-
+#  나온 결과값을 예쁘게 변환 (대소문자 -> 대문자로 변환)
+#  리스트의 bracket 및 , 제거
 def prettifyOutput(arg):
     print("Type is {0}".format(type(arg)))
     if isinstance(arg, string) or isinstance(arg, atom):

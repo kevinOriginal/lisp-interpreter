@@ -131,7 +131,7 @@ def parse(in_put: list) -> bool:
                     0, int(States[stack[0]].get(CFG[replace_num][0]))
                 )  # push GOTO into the stack
             elif decision == "acc":
-                print("accepted")
+                # print("accepted")
                 return tokens_to_ast(values)
 
             else:

@@ -9,9 +9,8 @@ from data_types import nil, atom, string
 #  나온 결과값을 예쁘게 변환 (대소문자 -> 대문자로 변환)
 #  리스트의 bracket 및 , 제거
 def prettifyOutput(arg):
-    print("Type is {0}".format(type(arg)))
     if isinstance(arg, string) or isinstance(arg, atom):
-        return str(arg).capitalize()
+        return str(arg).upper()
     if is_number(arg):
         return str(arg)
     if isinstance(arg, list):
@@ -39,14 +38,13 @@ def main():
                 sys.exit()
             tokenized = tokenize(tokens)
             parsed = parse(tokenized)
-            print("parsed - {0}".format(parsed))
-            print("--------Evaluate start----------")
+            # print("parsed - {0}".format(parsed))
             result = eval_variable(parsed, environment)
-            print("--------Eval Complete-----------")
             prettified = prettifyOutput(result)
             print(prettified)
         except Exception as e:
-            print(traceback.format_exc())
+            # Debugging 용도로 bug stack tracing 용도로 사용을 한다.
+            # print(traceback.format_exc())
             print(e)
 
 

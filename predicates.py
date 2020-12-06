@@ -246,9 +246,6 @@ def cdr(arg, env):
     return evaled[1:]
 
 
-# TODO: Implement CXXXR
-
-
 @identifier("NTH")
 def nth(args: List, env):
     check_number_of_args(args, 2)
@@ -348,6 +345,11 @@ def subst(args: List, env):
     replace_from = eval_variable(replace_from, env)
     arr = eval_variable(lookup, env)
     return list(map(lambda x: x if x != replace_from else replace_to, arr))
+
+
+@identifier("print")
+def print_i(arg, env):
+    return eval_variable(arg, env)
 
 
 # Conditionals

@@ -35,8 +35,10 @@ def tokenize(chars: str):
             token = {token: token}
         elif token == '%':
             token = {'/' : '%' }
-        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','print','nil'] :  
+        elif token in ['begin', 'define', 'setq', 'car','cdr', 'list', 'nth', 'nil', 'cons','reverse','append','length','member','assoc','remove','subst','atom','null','numberp','zerop','minusp','equal','stringp','if','cond','nil'] :  
             token = {token.upper() : token.upper()} #함수들을 다 대문자로 토큰화 
+        elif token == 'print':
+            token = {'STRINGP': token}
         elif re.compile(r'^c[a]*[d]*[a*,d*]*r').search(token):         
             token = {'CADR': token.upper()}  #car {cdr}  == ca{d}r , 토큰은 cadr로 
         else:
